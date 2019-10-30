@@ -10,8 +10,8 @@ class Connection:
 
     def __init__(self, app, host, port):
         self.app = app
-        self.client = pymongo.MongoClient(host, port)
-    
+        self.client = pymongo.MongoClient(host, port, replicaSet="rs0")
+
         self.db = self.client['chat-app']
         self.messages = self.db['messages']
         self.rooms = self.db['rooms']
@@ -20,8 +20,10 @@ class Connection:
     # Message functions
     def get_messages(self, room, max=50):
         """Retrieves the messages from a chatroom."""
-        results = self.messages.find({'room': room}, limit=max) # Get the messages
-        results = results.sort('date', pymongo.ASCENDING) # Sort by date in ascending order so later messages are at the bottom
+        results = self.messages.find({'room': room},
+                                     limit=max)  # Get the messages
+        results = results.sort('date',
+                               pymongo.ASCENDING)  # Sort by date in ascending order so later messages are at the bottom
         return results
 
     def add_message(self, room, author, content):
@@ -34,10 +36,12 @@ class Connection:
                 'content': content
             }
             self.messages.insert_one(message)
-            return True # Insertion was successful
+            return True  # Insertion was successful
         else:
-            self.app.logger.warning('A message was attempted to be sent to the invalid room: %s', room)
-            return False # Insertion was unsuccessful
+            self.app.logger.warning(
+                'A message was attempted to be sent to the invalid room: %s',
+                room)
+            return False  # Insertion was unsuccessful
 
     # Room functions
     def room_exists(self, name):
@@ -77,7 +81,8 @@ class Connection:
         # Check if the username is taken
         if self.users.count_documents({'username': username}) == 0:
             # Create the user
-            hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            hashed_pw = bcrypt.hashpw(password.encode('utf-8'),
+                                      bcrypt.gensalt())
             user = {
                 'username': username,
                 'password': hashed_pw
