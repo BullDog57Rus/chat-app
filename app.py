@@ -12,8 +12,6 @@ app.secret_key = b'JPtUKpetQiyfzGpBS5SM'  # yeah, i don't care. hack me
 from database import Connection
 
 db = Connection(app, 'db1,db2,db3', 27017)
-db.create_user("admin", "admin")
-db.create_room("Chatick")
 
 # Initialize chatlogger
 from chatlog import Logger
